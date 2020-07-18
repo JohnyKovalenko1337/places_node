@@ -21,10 +21,12 @@
   "homepage": "https://github.com/JohnyKovalenko1337/places_node#readme",
   "devDependencies": {
     "@types/body-parser": "^1.19.0",
+    "@types/express": "^4.17.7",
     "@types/node": "^14.0.23",
     "nodemon": "^2.0.4",
     "ts-node": "^8.10.2",
-    "tslint": "^6.1.2"
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.7"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 import bodyParser from 'body-parser';
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use((req:any,res:any,next:any)=>{
+app.use('/', (req,res,next)=>{
     res.send('<h1>asda</h1>')
 })
 

@@ -1,10 +1,7 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createPlace = exports.getPlaceById = void 0;
-const http_errors_1 = __importDefault(require("../models/http-errors"));
+const uuid_1 = require("uuid");
 const Dummy_Items = [
     {
         id: 'p1',
@@ -37,18 +34,23 @@ exports.getPlaceById = (req, res, next) => {
         return p.id === placeId;
     });
     if (!place) {
-        throw new http_errors_1.default('Couldnt find place for your id', 404);
+        return res.json({ message: 'Couldnt find place for your id' });
     }
     console.log(place);
     res.json({ message: 'success', place: place });
 };
 exports.createPlace = (req, res, next) => {
     const userId = req.params.userId;
-    const place = Dummy_Items.find(p => {
-        return p.id === userId;
-    });
-    if (!place) {
-        throw new http_errors_1.default('Couldnt find place for your id', 404);
-    }
-    console.log(place);
+    const { title, description, address, coordinates, creator } = req.body;
+    const createPlace = {
+        id: uuid_1.v4(),
+        title: title,
+        description: description,
+        imageUrl: 'a',
+        address: address,
+        location: coordinates,
+        creator: creator
+    };
+    Dummy_Items.push(createPlace);
+    res.status(201).json({ message: "place successfuly added", place: createPlace });
 };

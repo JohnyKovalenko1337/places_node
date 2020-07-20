@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { v4 }  from 'uuid' ; 
 import HttpError from '../models/http-errors';
 import { Place } from '../models/place-object';
 
@@ -37,7 +38,7 @@ export const getPlaceById = (req: Request, res: Response, next: NextFunction) =>
         return p.id === placeId;
     })
     if (!place) {
-        throw new HttpError('Couldnt find place for your id', 404);
+        return res.json({message:'Couldnt find place for your id'});
     }
 
     console.log(place);
@@ -48,13 +49,19 @@ export const getPlaceById = (req: Request, res: Response, next: NextFunction) =>
 export const createPlace = (req: Request, res: Response, next: NextFunction) => {
     const userId = req.params.userId as string;
 
-    const place: any = Dummy_Items.find(p => {
-        return p.id === userId;
-    })
-    if (!place) {
-        throw new HttpError('Couldnt find place for your id', 404);
+    const {  title, description, address, coordinates, creator } = req.body;
+
+    const createPlace: Place = {
+        id: v4(),
+        title: title,
+        description: description,
+        imageUrl: 'a',
+        address: address,
+        location: coordinates,
+        creator: creator
     }
 
-    console.log(place);
+    Dummy_Items.push(createPlace);
 
+    res.status(201).json({message:"place successfuly added", place: createPlace});
 };

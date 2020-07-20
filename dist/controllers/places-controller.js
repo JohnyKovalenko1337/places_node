@@ -1,8 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createPlace = exports.getPlaceById = void 0;
+exports.deletePlaceById = exports.updatePlaceById = exports.createPlace = exports.getPlacesByUserId = exports.getPlaceById = void 0;
 const uuid_1 = require("uuid");
-const Dummy_Items = [
+const http_errors_1 = __importDefault(require("../models/http-errors"));
+const express_validator_1 = require("express-validator");
+let Dummy_Items = [
     {
         id: 'p1',
         title: 'Louvre',
@@ -39,8 +44,23 @@ exports.getPlaceById = (req, res, next) => {
     console.log(place);
     res.json({ message: 'success', place: place });
 };
-exports.createPlace = (req, res, next) => {
+exports.getPlacesByUserId = (req, res, next) => {
     const userId = req.params.userId;
+    const places = Dummy_Items.filter(p => {
+        return p.creator === userId;
+    });
+    if (!places || places.length === 0) {
+        return res.json({ message: 'Couldnt find place for your user' });
+    }
+    console.log(places);
+    res.json({ message: 'success', place: places });
+};
+exports.createPlace = (req, res, next) => {
+    const errors = express_validator_1.validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(422);
+        throw new http_errors_1.default('invalid inputs passed', 422);
+    }
     const { title, description, address, coordinates, creator } = req.body;
     const createPlace = {
         id: uuid_1.v4(),
@@ -53,4 +73,24 @@ exports.createPlace = (req, res, next) => {
     };
     Dummy_Items.push(createPlace);
     res.status(201).json({ message: "place successfuly added", place: createPlace });
+};
+exports.updatePlaceById = (req, res, next) => {
+    const errors = express_validator_1.validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(422);
+        throw new http_errors_1.default('invalid inputs passed', 422);
+    }
+    const placeId = req.params.placeId;
+    const { title, description } = req.body;
+    const updatedPlace = Object.assign({}, Dummy_Items.find(p => { return p.id === placeId; }));
+    const placeIndex = Dummy_Items.findIndex(p => { return p.id === placeId; });
+    updatedPlace.title = title;
+    updatedPlace.description = description;
+    Dummy_Items[placeIndex] = updatedPlace;
+    res.status(201).json({ message: "place successfuly updated", place: updatedPlace });
+};
+exports.deletePlaceById = (req, res, next) => {
+    const placeId = req.params.placeId;
+    Dummy_Items = Dummy_Items.filter(p => p.id !== placeId);
+    res.status(201).json({ message: "Place successfuly deleted", items: Dummy_Items });
 };

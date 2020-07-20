@@ -3,6 +3,7 @@ import { v4 } from 'uuid';
 import HttpError from '../models/http-errors';
 import { validationResult } from 'express-validator';
 import { Place } from '../models/place-object';
+import getCoord from '../util/location';
 
 let Dummy_Items: Array<Place> = [
     {
@@ -63,15 +64,21 @@ export const getPlacesByUserId = (req: Request, res: Response, next: NextFunctio
     res.json({ message: 'success', place: places })
 };
 
-export const createPlace = (req: Request, res: Response, next: NextFunction) => {
+export const createPlace = async (req: Request, res: Response, next: NextFunction) => {
     const errors: any = validationResult(req);
 
-    if(!errors.isEmpty()){
-        res.status(422)
-        throw new HttpError('invalid inputs passed', 422);
+    if (!errors.isEmpty()) {
+        next(new HttpError('invalid inputs passed', 422));
     }
 
-    const { title, description, address, coordinates, creator } = req.body;
+    const { title, description, address, creator } = req.body;
+    let coordinates;
+    try {
+        coordinates = await getCoord(address);
+    }
+    catch (error) {
+        return next(error);
+    }
 
     const createPlace: Place = {
         id: v4(),
@@ -92,7 +99,7 @@ export const updatePlaceById = (req: Request, res: Response, next: NextFunction)
 
     const errors: any = validationResult(req);
 
-    if(!errors.isEmpty()){
+    if (!errors.isEmpty()) {
         res.status(422)
         throw new HttpError('invalid inputs passed', 422);
     }
@@ -102,14 +109,14 @@ export const updatePlaceById = (req: Request, res: Response, next: NextFunction)
     const { title, description } = req.body;
 
     const updatedPlace: any = {
-        ...Dummy_Items.find(p => {return p.id === placeId;}),
+        ...Dummy_Items.find(p => { return p.id === placeId; }),
     };
-    const placeIndex: any = Dummy_Items.findIndex(p => {return p.id === placeId;});
+    const placeIndex: any = Dummy_Items.findIndex(p => { return p.id === placeId; });
 
     updatedPlace.title = title;
     updatedPlace.description = description;
 
-    Dummy_Items[placeIndex] = updatedPlace;     
+    Dummy_Items[placeIndex] = updatedPlace;
 
     res.status(201).json({ message: "place successfuly updated", place: updatedPlace });
 
@@ -118,7 +125,7 @@ export const updatePlaceById = (req: Request, res: Response, next: NextFunction)
 export const deletePlaceById = (req: Request, res: Response, next: NextFunction) => {
     const placeId = req.params.placeId as string;
 
-    Dummy_Items = Dummy_Items.filter(p=> p.id !== placeId);
-    res.status(201).json({message:"Place successfuly deleted", items: Dummy_Items});
+    Dummy_Items = Dummy_Items.filter(p => p.id !== placeId);
+    res.status(201).json({ message: "Place successfuly deleted", items: Dummy_Items });
 };
 

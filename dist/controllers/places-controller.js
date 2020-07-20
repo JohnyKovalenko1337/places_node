@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -7,6 +16,7 @@ exports.deletePlaceById = exports.updatePlaceById = exports.createPlace = export
 const uuid_1 = require("uuid");
 const http_errors_1 = __importDefault(require("../models/http-errors"));
 const express_validator_1 = require("express-validator");
+const location_1 = __importDefault(require("../util/location"));
 let Dummy_Items = [
     {
         id: 'p1',
@@ -55,13 +65,19 @@ exports.getPlacesByUserId = (req, res, next) => {
     console.log(places);
     res.json({ message: 'success', place: places });
 };
-exports.createPlace = (req, res, next) => {
+exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = express_validator_1.validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(422);
-        throw new http_errors_1.default('invalid inputs passed', 422);
+        next(new http_errors_1.default('invalid inputs passed', 422));
     }
-    const { title, description, address, coordinates, creator } = req.body;
+    const { title, description, address, creator } = req.body;
+    let coordinates;
+    try {
+        coordinates = yield location_1.default(address);
+    }
+    catch (error) {
+        return next(error);
+    }
     const createPlace = {
         id: uuid_1.v4(),
         title: title,
@@ -73,7 +89,7 @@ exports.createPlace = (req, res, next) => {
     };
     Dummy_Items.push(createPlace);
     res.status(201).json({ message: "place successfuly added", place: createPlace });
-};
+});
 exports.updatePlaceById = (req, res, next) => {
     const errors = express_validator_1.validationResult(req);
     if (!errors.isEmpty()) {

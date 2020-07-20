@@ -13,58 +13,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePlaceById = exports.updatePlaceById = exports.createPlace = exports.getPlacesByUserId = exports.getPlaceById = void 0;
-const uuid_1 = require("uuid");
-const http_errors_1 = __importDefault(require("../models/http-errors"));
 const express_validator_1 = require("express-validator");
+const http_errors_1 = __importDefault(require("../models/http-errors"));
+const placeSchema_1 = __importDefault(require("../models/placeSchema"));
 const location_1 = __importDefault(require("../util/location"));
-let Dummy_Items = [
-    {
-        id: 'p1',
-        title: 'Louvre',
-        imageUrl: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
-        address: 'Musée du Louvre, Cour Napoléon et Pyramide du Louvre, 75001 Paris',
-        description: 'One of the famoust museum',
-        location: {
-            lat: 48.8613684,
-            lng: 2.3254948
-        },
-        creator: 'u1',
-    },
-    {
-        id: 'p2',
-        title: 'Louvre',
-        imageUrl: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
-        address: 'Musée du Louvre, Cour Napoléon et Pyramide du Louvre, 75001 Paris',
-        description: 'One of the famoust museum',
-        location: {
-            lat: 48.8613684,
-            lng: 2.3254948
-        },
-        creator: 'u2',
-    }
-];
-exports.getPlaceById = (req, res, next) => {
+//===================================Get Place By ID ======================================
+exports.getPlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const placeId = req.params.placeId;
-    const place = Dummy_Items.find(p => {
-        return p.id === placeId;
-    });
-    if (!place) {
-        return res.json({ message: 'Couldnt find place for your id' });
+    let place;
+    try {
+        place = yield placeSchema_1.default.findById(placeId);
     }
-    console.log(place);
-    res.json({ message: 'success', place: place });
-};
-exports.getPlacesByUserId = (req, res, next) => {
+    catch (err) {
+        next(new http_errors_1.default('invalid inputs passed', 422));
+    }
+    res.json({ message: 'success', place: place.toObject() });
+});
+// ============================== get places by user ID =======================================
+exports.getPlacesByUserId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.userId;
-    const places = Dummy_Items.filter(p => {
-        return p.creator === userId;
-    });
-    if (!places || places.length === 0) {
-        return res.json({ message: 'Couldnt find place for your user' });
+    let places;
+    try {
+        places = yield placeSchema_1.default.find({ creator: userId });
     }
-    console.log(places);
-    res.json({ message: 'success', place: places });
-};
+    catch (err) {
+        next(new http_errors_1.default('Cant find any places by this id', 422));
+    }
+    res.json({ message: 'success', place: places.toObject() });
+});
+// ============================================== create PLACE ==========================================
 exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = express_validator_1.validationResult(req);
     if (!errors.isEmpty()) {
@@ -78,35 +55,51 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     catch (error) {
         return next(error);
     }
-    const createPlace = {
-        id: uuid_1.v4(),
-        title: title,
-        description: description,
-        imageUrl: 'a',
-        address: address,
+    const createPlace = new placeSchema_1.default({
+        title,
+        description,
+        address,
         location: coordinates,
-        creator: creator
-    };
-    Dummy_Items.push(createPlace);
+        imageUrl: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
+        creator: 'u1'
+    });
+    try {
+        yield createPlace.save();
+    }
+    catch (error) {
+        next(new http_errors_1.default('cant save new place', 500));
+    }
     res.status(201).json({ message: "place successfuly added", place: createPlace });
 });
-exports.updatePlaceById = (req, res, next) => {
+// =========================== update Place by Id =======================================
+exports.updatePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = express_validator_1.validationResult(req);
     if (!errors.isEmpty()) {
         res.status(422);
-        throw new http_errors_1.default('invalid inputs passed', 422);
+        next(new http_errors_1.default('invalid inputs passed', 422));
     }
     const placeId = req.params.placeId;
     const { title, description } = req.body;
-    const updatedPlace = Object.assign({}, Dummy_Items.find(p => { return p.id === placeId; }));
-    const placeIndex = Dummy_Items.findIndex(p => { return p.id === placeId; });
+    let updatedPlace;
+    try {
+        updatedPlace = yield placeSchema_1.default.findById(placeId);
+    }
+    catch (err) {
+        next(new http_errors_1.default('cant find this place', 500));
+    }
     updatedPlace.title = title;
     updatedPlace.description = description;
-    Dummy_Items[placeIndex] = updatedPlace;
-    res.status(201).json({ message: "place successfuly updated", place: updatedPlace });
-};
-exports.deletePlaceById = (req, res, next) => {
+    try {
+        yield updatedPlace.save();
+    }
+    catch (err) {
+        next(new http_errors_1.default('cant save new place', 500));
+    }
+    res.status(201).json({ message: "place successfuly updated", place: updatedPlace.toObject() });
+});
+// =================================================== delete by id ==============================
+exports.deletePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const placeId = req.params.placeId;
-    Dummy_Items = Dummy_Items.filter(p => p.id !== placeId);
-    res.status(201).json({ message: "Place successfuly deleted", items: Dummy_Items });
-};
+    yield placeSchema_1.default.deleteOne({ _id: placeId });
+    res.status(201).json({ message: "Place successfuly deleted" });
+});

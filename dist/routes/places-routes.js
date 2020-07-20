@@ -7,4 +7,5 @@ const express_1 = __importDefault(require("express"));
 const places_controller_1 = require("../controllers/places-controller");
 const router = express_1.default.Router();
 router.get('/:placeId', places_controller_1.getPlaceById);
+router.post('/create', places_controller_1.createPlace);
 exports.default = router;

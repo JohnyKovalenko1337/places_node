@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const http_errors_1 = __importDefault(require("./models/http-errors"));
 const places_routes_1 = __importDefault(require("./routes/places-routes"));
 const app = express_1.default();
@@ -26,4 +27,10 @@ app.use((error, req, res, next) => {
         message: message,
     });
 });
-app.listen({ port: 8000 });
+mongoose_1.default.connect('mongodb+srv://sadJo:qwerty123456@placedb.gjnu9.mongodb.net/places?retryWrites=true&w=majority', { useUnifiedTopology: true, useNewUrlParser: true })
+    .then(() => {
+    app.listen({ port: 8000 });
+})
+    .catch(() => {
+    console.log('failed to mongodb');
+});

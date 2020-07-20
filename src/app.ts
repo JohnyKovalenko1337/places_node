@@ -1,5 +1,6 @@
 import express, { Errback, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
 
 import HttpError from './models/http-errors';
 import placesRouter from './routes/places-routes';
@@ -11,16 +12,16 @@ app.use(bodyParser.json());
 app.use('/places', placesRouter);
 
 
-app.use((req: Request, res: Response, next: NextFunction)=>{
+app.use((req: Request, res: Response, next: NextFunction) => {
     const error = new HttpError('Couldnt find this route', 404);
-    return res.json({message:error.message});
+    return res.json({ message: error.message });
 })
 
 app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
     const status = error.code || 500;
     const message = error.message || 'Something went wrong';
 
-    if(!res.headersSent){
+    if (!res.headersSent) {
         return next(error);
     }
 
@@ -31,4 +32,11 @@ app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
         })
 })
 
-app.listen({ port: 8000 });
+mongoose.connect('mongodb+srv://sadJo:qwerty123456@placedb.gjnu9.mongodb.net/places?retryWrites=true&w=majority',
+    { useUnifiedTopology: true, useNewUrlParser: true })
+    .then(() => {
+        app.listen({ port: 8000 });
+    })
+    .catch(() => {
+        console.log('failed to mongodb')
+    })

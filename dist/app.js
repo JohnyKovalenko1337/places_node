@@ -11,6 +11,11 @@ const places_routes_1 = __importDefault(require("./routes/places-routes"));
 const user_routes_1 = __importDefault(require("./routes/user-routes"));
 const app = express_1.default();
 app.use(body_parser_1.default.json());
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Autorizathion');
+    next();
+});
 app.use('/places', places_routes_1.default);
 app.use('/user', user_routes_1.default);
 app.use((req, res, next) => {

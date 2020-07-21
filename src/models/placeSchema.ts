@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 const Schema = mongoose.Schema;
 
 const placeSchema = new Schema({
@@ -24,8 +23,9 @@ const placeSchema = new Schema({
         lng: { type: Number, required: true },
     },
     creator: {
-        type: String,
-        required: true
+        type: mongoose.Types.ObjectId,
+        required: true,
+        ref: "User"
     },
 
 });

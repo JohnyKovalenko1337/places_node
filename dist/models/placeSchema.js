@@ -27,8 +27,9 @@ const placeSchema = new Schema({
         lng: { type: Number, required: true },
     },
     creator: {
-        type: String,
-        required: true
+        type: mongoose_1.default.Types.ObjectId,
+        required: true,
+        ref: "User"
     },
 });
 exports.default = mongoose_1.default.model('Place', placeSchema);

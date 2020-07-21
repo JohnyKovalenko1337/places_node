@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import HttpError from '../models/http-errors';
 import User from '../models/userSchema';
+import Place from '../models/placeSchema';
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
 

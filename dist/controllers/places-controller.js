@@ -69,7 +69,7 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     catch (error) {
         next(new http_errors_1.default('cant save new place', 500));
     }
-    res.status(201).json({ message: "place successfuly added", place: createPlace });
+    res.status(201).json({ message: "place successfuly added", place: createPlace.toObject() });
 });
 // =========================== update Place by Id =======================================
 exports.updatePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

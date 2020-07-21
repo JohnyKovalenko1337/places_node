@@ -71,7 +71,7 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
     catch(error){
         next(new HttpError('cant save new place', 500));
     }
-    res.status(201).json({ message: "place successfuly added", place: createPlace });
+    res.status(201).json({ message: "place successfuly added", place: createPlace.toObject() });
 
 };
 // =========================== update Place by Id =======================================

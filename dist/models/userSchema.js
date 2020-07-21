@@ -24,9 +24,10 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    places: {
-        type: String,
-        required: true
-    }
+    places: [{
+            type: mongoose_1.default.Types.ObjectId,
+            required: true,
+            ref: "Place"
+        }]
 });
 exports.default = mongoose_1.default.model('User', userSchema);

@@ -4,8 +4,10 @@ import { validationResult } from 'express-validator';
 
 import HttpError from '../models/http-errors';
 import PlaceSchema from '../models/placeSchema';
-import { Place } from '../models/place-object';
+import User from '../models/userSchema';
 import getCoord from '../util/location';
+import { hrtime } from 'process';
+import mongoose from 'mongoose';
 
 
 //===================================Get Place By ID ======================================
@@ -13,27 +15,27 @@ export const getPlaceById = async (req: Request, res: Response, next: NextFuncti
 
     const placeId = req.params.placeId as string;
     let place: any;
-    try{
+    try {
         place = await PlaceSchema.findById(placeId)
-        
+
     }
-    catch(err){
-        next(new HttpError('invalid inputs passed', 422));
+    catch (err) {
+        return next(new HttpError('invalid inputs passed', 422));
     }
     res.json({ message: 'success', place: place.toObject() })
 };
 
 // ============================== get places by user ID =======================================
-export const getPlacesByUserId =  async (req: Request, res: Response, next: NextFunction) => {
+export const getPlacesByUserId = async (req: Request, res: Response, next: NextFunction) => {
 
     const userId = req.params.userId as string;
 
-    let places: any 
-    try{
-        places = await PlaceSchema.find({creator: userId}); 
+    let places: any
+    try {
+        places = await PlaceSchema.find({ creator: userId });
     }
-    catch(err){
-        next(new HttpError('Cant find any places by this id', 422));
+    catch (err) {
+        return next(new HttpError('Cant find any places by this id', 422));
     }
 
     res.json({ message: 'success', place: places.toObject() })
@@ -43,7 +45,7 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
     const errors: any = validationResult(req);
 
     if (!errors.isEmpty()) {
-        next(new HttpError('invalid inputs passed', 422));
+        return next(new HttpError('invalid inputs passed', 422));
     }
 
     const { title, description, address, creator } = req.body;
@@ -59,17 +61,35 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
         title,
         description,
         address,
-        location:coordinates, 
-        imageUrl:'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
-        creator: 'u1'
+        location: coordinates,
+        imageUrl: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
+        creator
     })
 
 
-    try{
-        await createPlace.save()
+    let user: any;
+
+
+    try {
+        user = await User.findById(creator);
     }
-    catch(error){
-        next(new HttpError('cant save new place', 500));
+    catch (err) {
+        return next(new HttpError('Operation failed', 500));
+    };
+    if (!user) {
+        return next(new HttpError('No user found for your creator id', 404));
+    }
+
+    try {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        await createPlace.save({ session: session });
+        user.places.push(createPlace);
+        await user.save({ session: session });
+        await session.commitTransaction();
+    }
+    catch (error) {
+        return next(new HttpError('cant save new place', 500));
     }
     res.status(201).json({ message: "place successfuly added", place: createPlace.toObject() });
 
@@ -89,22 +109,23 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
     const { title, description } = req.body;
 
     let updatedPlace: any;
-     try{
+    try {
         updatedPlace = await PlaceSchema.findById(placeId);
-     }
-     catch(err){
+    }
+    catch (err) {
         next(new HttpError('cant find this place', 500));
-     }
+    }
 
     updatedPlace.title = title;
     updatedPlace.description = description;
 
-    try{
+    try {
         await updatedPlace.save()
     }
-    catch(err){
-        next(new HttpError('cant save new place', 500));
-     }
+    catch (err) {
+        next(new HttpError('Operation failed', 500));
+
+    }
 
     res.status(201).json({ message: "place successfuly updated", place: updatedPlace.toObject() });
 
@@ -113,7 +134,27 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
 export const deletePlaceById = async (req: Request, res: Response, next: NextFunction) => {
     const placeId = req.params.placeId as string;
 
-    await PlaceSchema.deleteOne({_id:placeId});
+    let place: any;
+    try {
+        place = await PlaceSchema.findById(placeId).populate('creator');
+    }
+    catch (err) {
+        next(new HttpError('Operation failed', 500));
+    }
 
-    res.status(201).json({ message: "Place successfuly deleted"});
+
+    try {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        await place.remove({ session: session });
+        place.creator.places.pull(place);
+        await place.creator.save({ session: session });
+        await session.commitTransaction();
+    }
+    catch (err) {
+        next(new HttpError('Operation failed', 500));
+
+    }
+
+    res.status(201).json({ message: "Place successfuly deleted" });
 };

@@ -16,7 +16,9 @@ exports.deletePlaceById = exports.updatePlaceById = exports.createPlace = export
 const express_validator_1 = require("express-validator");
 const http_errors_1 = __importDefault(require("../models/http-errors"));
 const placeSchema_1 = __importDefault(require("../models/placeSchema"));
+const userSchema_1 = __importDefault(require("../models/userSchema"));
 const location_1 = __importDefault(require("../util/location"));
+const mongoose_1 = __importDefault(require("mongoose"));
 //===================================Get Place By ID ======================================
 exports.getPlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const placeId = req.params.placeId;
@@ -25,7 +27,7 @@ exports.getPlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         place = yield placeSchema_1.default.findById(placeId);
     }
     catch (err) {
-        next(new http_errors_1.default('invalid inputs passed', 422));
+        return next(new http_errors_1.default('invalid inputs passed', 422));
     }
     res.json({ message: 'success', place: place.toObject() });
 });
@@ -37,7 +39,7 @@ exports.getPlacesByUserId = (req, res, next) => __awaiter(void 0, void 0, void 0
         places = yield placeSchema_1.default.find({ creator: userId });
     }
     catch (err) {
-        next(new http_errors_1.default('Cant find any places by this id', 422));
+        return next(new http_errors_1.default('Cant find any places by this id', 422));
     }
     res.json({ message: 'success', place: places.toObject() });
 });
@@ -45,7 +47,7 @@ exports.getPlacesByUserId = (req, res, next) => __awaiter(void 0, void 0, void 0
 exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = express_validator_1.validationResult(req);
     if (!errors.isEmpty()) {
-        next(new http_errors_1.default('invalid inputs passed', 422));
+        return next(new http_errors_1.default('invalid inputs passed', 422));
     }
     const { title, description, address, creator } = req.body;
     let coordinates;
@@ -61,13 +63,29 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         address,
         location: coordinates,
         imageUrl: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
-        creator: 'u1'
+        creator
     });
+    let user;
     try {
-        yield createPlace.save();
+        user = yield userSchema_1.default.findById(creator);
+    }
+    catch (err) {
+        return next(new http_errors_1.default('Operation failed', 500));
+    }
+    ;
+    if (!user) {
+        return next(new http_errors_1.default('No user found for your creator id', 404));
+    }
+    try {
+        const session = yield mongoose_1.default.startSession();
+        session.startTransaction();
+        yield createPlace.save({ session: session });
+        user.places.push(createPlace);
+        yield user.save({ session: session });
+        yield session.commitTransaction();
     }
     catch (error) {
-        next(new http_errors_1.default('cant save new place', 500));
+        return next(new http_errors_1.default('cant save new place', 500));
     }
     res.status(201).json({ message: "place successfuly added", place: createPlace.toObject() });
 });
@@ -93,13 +111,30 @@ exports.updatePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         yield updatedPlace.save();
     }
     catch (err) {
-        next(new http_errors_1.default('cant save new place', 500));
+        next(new http_errors_1.default('Operation failed', 500));
     }
     res.status(201).json({ message: "place successfuly updated", place: updatedPlace.toObject() });
 });
 // =================================================== delete by id ==============================
 exports.deletePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const placeId = req.params.placeId;
-    yield placeSchema_1.default.deleteOne({ _id: placeId });
+    let place;
+    try {
+        place = yield placeSchema_1.default.findById(placeId).populate('creator');
+    }
+    catch (err) {
+        next(new http_errors_1.default('Operation failed', 500));
+    }
+    try {
+        const session = yield mongoose_1.default.startSession();
+        session.startTransaction();
+        yield place.remove({ session: session });
+        place.creator.places.pull(place);
+        yield place.creator.save({ session: session });
+        yield session.commitTransaction();
+    }
+    catch (err) {
+        next(new http_errors_1.default('Operation failed', 500));
+    }
     res.status(201).json({ message: "Place successfuly deleted" });
 });

@@ -9,7 +9,7 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
     //onst userId: string = req.params.userId;
     let users: any;
     try {
-        users = await User.find({}, 'email name');
+        users = await User.find({}, '-password');
     }
     catch (err) {
         return next(new HttpError('Failed operation', 500));

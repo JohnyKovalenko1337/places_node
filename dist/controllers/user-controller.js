@@ -20,7 +20,7 @@ exports.getUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     //onst userId: string = req.params.userId;
     let users;
     try {
-        users = yield userSchema_1.default.find({}, 'email name');
+        users = yield userSchema_1.default.find({}, '-password');
     }
     catch (err) {
         return next(new http_errors_1.default('Failed operation', 500));

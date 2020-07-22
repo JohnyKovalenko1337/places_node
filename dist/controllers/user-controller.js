@@ -23,9 +23,9 @@ exports.getUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         users = yield userSchema_1.default.find({}, 'email name');
     }
     catch (err) {
-        next(new http_errors_1.default('Failed operation', 500));
+        return next(new http_errors_1.default('Failed operation', 500));
     }
-    res.json({ message: 'success', users: users.toObject() });
+    res.json({ message: 'success', users: users });
 });
 exports.signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = express_validator_1.validationResult(req);
@@ -46,7 +46,7 @@ exports.signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     const createUser = new userSchema_1.default({
         name,
         email,
-        imageUrl: 'https://i.pinimg.com/originals/92/c2/f0/92c2f03407ee7bc8dab7c2962388a139.jpg',
+        image: 'https://i.pinimg.com/originals/92/c2/f0/92c2f03407ee7bc8dab7c2962388a139.jpg',
         password,
         places: []
     });
@@ -56,12 +56,12 @@ exports.signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     catch (error) {
         next(new http_errors_1.default('cant save new place', 500));
     }
-    res.status(201).json({ message: "place successfuly added", user: createUser.toObject() });
+    res.status(201).json({ message: "place successfuly added", user: createUser });
 });
 exports.login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = express_validator_1.validationResult(req);
     if (!errors.isEmpty()) {
-        next(new http_errors_1.default('invalid inputs passed', 422));
+        return next(new http_errors_1.default('invalid inputs passed', 422));
     }
     const { email, password } = req.body;
     let existingUser;
@@ -69,10 +69,10 @@ exports.login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         existingUser = yield userSchema_1.default.findOne({ email: email, password: password });
     }
     catch (err) {
-        next(new http_errors_1.default('Failed operation', 500));
+        return next(new http_errors_1.default('Failed operation', 500));
     }
     if (!existingUser) {
-        next(new http_errors_1.default('Invalid email or password', 422));
+        return next(new http_errors_1.default('Invalid email or password', 422));
     }
     res.status(201).json({ message: "User successfuly loggined" });
 });

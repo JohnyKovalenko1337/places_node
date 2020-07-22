@@ -12,8 +12,11 @@ app.use(bodyParser.json());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Autorizathion');
-    res.setHeader('Access-Controll-Allow-Methods', 'POST,GET,DELETE,PATCH,PUT,OPTION')
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    );
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, PATCH, PUT');
     next();
 });
 

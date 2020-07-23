@@ -32,13 +32,19 @@ export const getPlacesByUserId = async (req: Request, res: Response, next: NextF
 
     let places: any
     try {
-        places = await PlaceSchema.find({ creator: userId });
+        places = await User.findById(userId).populate('places');
     }
     catch (err) {
         return next(new HttpError('Cant find any places by this id', 422));
     }
 
-    res.json({ message: 'success', place: places.toObject() })
+    if (!places || places.places.length === 0) {
+        return next(
+          new HttpError('Could not find places for the provided user id.', 404)
+        );
+      }
+
+    res.json({ message: 'success', place: places.places.map((place:any) => place.toObject({ getters: true }))  })
 };
 // ============================================== create PLACE ==========================================
 export const createPlace = async (req: Request, res: Response, next: NextFunction) => {

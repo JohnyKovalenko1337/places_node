@@ -36,12 +36,15 @@ exports.getPlacesByUserId = (req, res, next) => __awaiter(void 0, void 0, void 0
     const userId = req.params.userId;
     let places;
     try {
-        places = yield placeSchema_1.default.find({ creator: userId });
+        places = yield userSchema_1.default.findById(userId).populate('places');
     }
     catch (err) {
         return next(new http_errors_1.default('Cant find any places by this id', 422));
     }
-    res.json({ message: 'success', place: places.toObject() });
+    if (!places || places.places.length === 0) {
+        return next(new http_errors_1.default('Could not find places for the provided user id.', 404));
+    }
+    res.json({ message: 'success', place: places.places.map((place) => place.toObject({ getters: true })) });
 });
 // ============================================== create PLACE ==========================================
 exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

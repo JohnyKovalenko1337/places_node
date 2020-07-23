@@ -74,5 +74,8 @@ exports.login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     if (!existingUser) {
         return next(new http_errors_1.default('Invalid email or password', 422));
     }
-    res.status(201).json({ message: "User successfuly loggined" });
+    res.status(201).json({
+        message: "User successfuly loggined",
+        user: existingUser.toObject({ getters: true })
+    });
 });

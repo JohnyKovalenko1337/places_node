@@ -75,6 +75,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         return next(new HttpError('Invalid email or password', 422));
     }
 
-    res.status(201).json({ message: "User successfuly loggined" });
+    res.status(201).json({
+        message: "User successfuly loggined",
+        user: existingUser.toObject({ getters: true })
+    });
 
 };

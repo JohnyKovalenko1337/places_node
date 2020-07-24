@@ -17,7 +17,7 @@ exports.fileUpload = multer_1.default({
     },
     storage: multer_1.default.diskStorage({
         destination: (req, file, cb) => {
-            cb(null, 'uploads/images');
+            cb(null, './images');
         },
         filename: (req, file, cb) => {
             const ext = Mime_Type_Map[file.mimetype];

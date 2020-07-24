@@ -14,11 +14,11 @@ export const fileUpload = multer({
     },
     storage: multer.diskStorage({
         destination: (req: Request, file: any, cb)=>{
-            cb(null, 'uploads/images')
+            cb(null, './images')
         },
         filename: (req: Request, file: any, cb)=>{
             const ext: any = Mime_Type_Map[file.mimetype];
-            cb(null, v4());
+            cb(null, v4())
         },
         
     }),

@@ -65,7 +65,7 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         description,
         address,
         location: coordinates,
-        imageUrl: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
+        image: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
         creator
     });
     let user;

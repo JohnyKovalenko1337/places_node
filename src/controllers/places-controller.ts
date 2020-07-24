@@ -6,15 +6,16 @@ import HttpError from '../models/http-errors';
 import PlaceSchema from '../models/placeSchema';
 import User from '../models/userSchema';
 import getCoord from '../util/location';
-import { hrtime } from 'process';
+import { iPlace } from '../models/iPlace';
 import mongoose from 'mongoose';
+import { iUser } from '../models/iUser';
 
 
 //===================================Get Place By ID ======================================
 export const getPlaceById = async (req: Request, res: Response, next: NextFunction) => {
 
     const placeId = req.params.placeId as string;
-    let place: any;
+    let place: iPlace | any ;
     try {
         place = await PlaceSchema.findById(placeId)
 
@@ -30,7 +31,7 @@ export const getPlacesByUserId = async (req: Request, res: Response, next: NextF
 
     const userId = req.params.userId as string;
 
-    let places: any
+    let places: any  | iUser;
     try {
         places = await User.findById(userId).populate('places');
     }
@@ -63,17 +64,17 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
         return next(error);
     }
 
-    const createPlace: any = new PlaceSchema({
+    const createPlace:  iPlace | any = new PlaceSchema({
         title,
         description,
         address,
         location: coordinates,
-        imageUrl: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
+        image: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
         creator
     })
 
 
-    let user: any;
+    let user:  iUser | any;
 
 
     try {
@@ -114,7 +115,7 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
 
     const { title, description } = req.body;
 
-    let updatedPlace: any;
+    let updatedPlace:  iPlace | any;
     try {
         updatedPlace = await PlaceSchema.findById(placeId);
     }
@@ -140,7 +141,7 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
 export const deletePlaceById = async (req: Request, res: Response, next: NextFunction) => {
     const placeId = req.params.placeId as string;
 
-    let place: any;
+    let place:  iPlace | any;
     try {
         place = await PlaceSchema.findById(placeId).populate('creator');
     }

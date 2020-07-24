@@ -39,7 +39,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     const createUser: iUser | any = new User({
         name,
         email,
-        image: 'https://i.pinimg.com/originals/92/c2/f0/92c2f03407ee7bc8dab7c2962388a139.jpg',
+        image: req.file.path.replace("\\", "/"),
         password,
         places: []
     });

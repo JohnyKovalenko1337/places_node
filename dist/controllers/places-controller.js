@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePlaceById = exports.updatePlaceById = exports.createPlace = exports.getPlacesByUserId = exports.getPlaceById = void 0;
+const fs_1 = __importDefault(require("fs"));
 const express_validator_1 = require("express-validator");
 const http_errors_1 = __importDefault(require("../models/http-errors"));
 const placeSchema_1 = __importDefault(require("../models/placeSchema"));
@@ -65,7 +66,7 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         description,
         address,
         location: coordinates,
-        image: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
+        image: req.file.path.replace("\\", "/"),
         creator
     });
     let user;
@@ -128,6 +129,7 @@ exports.deletePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     catch (err) {
         next(new http_errors_1.default('Operation failed', 500));
     }
+    const ImagePath = place.image;
     try {
         const session = yield mongoose_1.default.startSession();
         session.startTransaction();
@@ -139,5 +141,6 @@ exports.deletePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     catch (err) {
         next(new http_errors_1.default('Operation failed', 500));
     }
+    fs_1.default.unlink(ImagePath, (err) => { console.log(err); });
     res.status(201).json({ message: "Place successfuly deleted" });
 });

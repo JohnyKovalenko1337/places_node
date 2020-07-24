@@ -45,7 +45,7 @@ exports.signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     const createUser = new userSchema_1.default({
         name,
         email,
-        image: 'https://i.pinimg.com/originals/92/c2/f0/92c2f03407ee7bc8dab7c2962388a139.jpg',
+        image: req.file.path.replace("\\", "/"),
         password,
         places: []
     });

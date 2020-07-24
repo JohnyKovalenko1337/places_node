@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { v4 } from 'uuid';
+import fs from 'fs';
 import { validationResult } from 'express-validator';
 
 import HttpError from '../models/http-errors';
@@ -15,7 +15,7 @@ import { iUser } from '../models/iUser';
 export const getPlaceById = async (req: Request, res: Response, next: NextFunction) => {
 
     const placeId = req.params.placeId as string;
-    let place: iPlace | any ;
+    let place: iPlace | any;
     try {
         place = await PlaceSchema.findById(placeId)
 
@@ -31,7 +31,7 @@ export const getPlacesByUserId = async (req: Request, res: Response, next: NextF
 
     const userId = req.params.userId as string;
 
-    let places: any  | iUser;
+    let places: any | iUser;
     try {
         places = await User.findById(userId).populate('places');
     }
@@ -41,11 +41,11 @@ export const getPlacesByUserId = async (req: Request, res: Response, next: NextF
 
     if (!places || places.places.length === 0) {
         return next(
-          new HttpError('Could not find places for the provided user id.', 404)
+            new HttpError('Could not find places for the provided user id.', 404)
         );
-      }
+    }
 
-    res.json({ message: 'success', place: places.places.map((place:any) => place.toObject({ getters: true }))  })
+    res.json({ message: 'success', place: places.places.map((place: any) => place.toObject({ getters: true })) })
 };
 // ============================================== create PLACE ==========================================
 export const createPlace = async (req: Request, res: Response, next: NextFunction) => {
@@ -64,17 +64,17 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
         return next(error);
     }
 
-    const createPlace:  iPlace | any = new PlaceSchema({
+    const createPlace: iPlace | any = new PlaceSchema({
         title,
         description,
         address,
         location: coordinates,
-        image: 'https://s.france24.com/media/display/ffb00d5c-5bcb-11ea-9b68-005056a98db9/w:1280/p:16x9/5ebdce7c4db36aa769d6edb94f5b288f18ac266c.webp',
+        image: req.file.path.replace("\\", "/"),
         creator
     })
 
 
-    let user:  iUser | any;
+    let user: iUser | any;
 
 
     try {
@@ -115,7 +115,7 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
 
     const { title, description } = req.body;
 
-    let updatedPlace:  iPlace | any;
+    let updatedPlace: iPlace | any;
     try {
         updatedPlace = await PlaceSchema.findById(placeId);
     }
@@ -141,7 +141,7 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
 export const deletePlaceById = async (req: Request, res: Response, next: NextFunction) => {
     const placeId = req.params.placeId as string;
 
-    let place:  iPlace | any;
+    let place: iPlace | any;
     try {
         place = await PlaceSchema.findById(placeId).populate('creator');
     }
@@ -149,6 +149,7 @@ export const deletePlaceById = async (req: Request, res: Response, next: NextFun
         next(new HttpError('Operation failed', 500));
     }
 
+    const ImagePath = place.image;
 
     try {
         const session = await mongoose.startSession();
@@ -162,6 +163,7 @@ export const deletePlaceById = async (req: Request, res: Response, next: NextFun
         next(new HttpError('Operation failed', 500));
 
     }
+    fs.unlink(ImagePath, (err) => { console.log(err) });
 
     res.status(201).json({ message: "Place successfuly deleted" });
 };

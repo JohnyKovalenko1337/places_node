@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const http_errors_1 = __importDefault(require("./models/http-errors"));
 const places_routes_1 = __importDefault(require("./routes/places-routes"));
 const user_routes_1 = __importDefault(require("./routes/user-routes"));
@@ -17,6 +19,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, PATCH, PUT');
     next();
 });
+app.use('/images', express_1.default.static(path_1.default.join("images")));
 app.use('/places', places_routes_1.default);
 app.use('/user', user_routes_1.default);
 app.use((req, res, next) => {
@@ -24,6 +27,11 @@ app.use((req, res, next) => {
     return res.json({ message: error.message });
 });
 app.use((error, req, res, next) => {
+    if (req.file) {
+        fs_1.default.unlink(req.file.path, (err) => {
+            console.log(err + " what the f*ck");
+        });
+    }
     const status = error.code || 500;
     const message = error.message || 'Something went wrong';
     return res

@@ -1,6 +1,8 @@
 import express, { Errback, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
 
 import HttpError from './models/http-errors';
 import placesRouter from './routes/places-routes';
@@ -9,6 +11,8 @@ import UserRouter from './routes/user-routes';
 const app = express();
 
 app.use(bodyParser.json());
+
+
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,6 +24,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
+app.use('/images', express.static(path.join( "images")));
+
+
 app.use('/places', placesRouter);
 
 app.use('/user', UserRouter);
@@ -30,6 +37,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 })
 
 app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
+    if(req.file){
+        fs.unlink(req.file.path, (err)=>{
+            console.log(err+" what the f*ck");
+        });
+    }
     const status = error.code || 500;
     const message = error.message || 'Something went wrong';
 

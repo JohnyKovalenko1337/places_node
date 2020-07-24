@@ -1,12 +1,14 @@
 import express from 'express';
-import { getUsers, signUp, login } from '../controllers/user-controller';
 import { check } from 'express-validator';
+import { fileUpload } from '../middleware/file-upload';
+import { getUsers, signUp, login } from '../controllers/user-controller';
 
 const router = express.Router();
 
 router.get('/', getUsers);
 
 router.post('/signup',
+    fileUpload.single('image'),
     [
         check('name')
             .notEmpty()

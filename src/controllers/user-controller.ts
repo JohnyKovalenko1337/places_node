@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import HttpError from '../models/http-errors';
 import User from '../models/userSchema';
+import { iUser } from '../models/iUser';    
 import Place from '../models/placeSchema';
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
 
-    //onst userId: string = req.params.userId;
-    let users: any;
+    let users: any[];
     try {
         users = await User.find({}, '-password');
     }
@@ -26,7 +26,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     }
     const { name, email, password } = req.body;
 
-    let existingUser: any;
+    let existingUser: iUser | any;
     try {
         existingUser = await User.findOne({ email: email });
     }
@@ -36,7 +36,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     if (existingUser) {
         return next(new HttpError('User with this email already exists', 422));
     }
-    const createUser: any = new User({
+    const createUser: iUser | any = new User({
         name,
         email,
         image: 'https://i.pinimg.com/originals/92/c2/f0/92c2f03407ee7bc8dab7c2962388a139.jpg',
@@ -63,7 +63,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     const { email, password } = req.body;
 
-    let existingUser: any;
+    let existingUser: iUser |any;
     try {
         existingUser = await User.findOne({ email: email, password: password });
     }

@@ -17,7 +17,6 @@ const express_validator_1 = require("express-validator");
 const http_errors_1 = __importDefault(require("../models/http-errors"));
 const userSchema_1 = __importDefault(require("../models/userSchema"));
 exports.getUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    //onst userId: string = req.params.userId;
     let users;
     try {
         users = yield userSchema_1.default.find({}, '-password');

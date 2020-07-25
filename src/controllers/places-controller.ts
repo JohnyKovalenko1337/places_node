@@ -102,13 +102,13 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
 
 };
 // =========================== update Place by Id =======================================
-export const updatePlaceById = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePlaceById = async (req: Request | any, res: Response, next: NextFunction) => {
 
     const errors: any = validationResult(req);
 
     if (!errors.isEmpty()) {
         res.status(422)
-        next(new HttpError('invalid inputs passed', 422));
+        return next(new HttpError('invalid inputs passed', 422));
     }
 
     const placeId = req.params.placeId as any;
@@ -120,7 +120,11 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
         updatedPlace = await PlaceSchema.findById(placeId);
     }
     catch (err) {
-        next(new HttpError('cant find this place', 500));
+        return next(new HttpError('cant find this place', 500));
+    }
+
+    if(updatedPlace.creator.toString() !== req.userData.userId){
+        return next(new HttpError('You are not allowed to edit this play', 401));
     }
 
     updatedPlace.title = title;
@@ -130,7 +134,7 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
         await updatedPlace.save()
     }
     catch (err) {
-        next(new HttpError('Operation failed', 500));
+        return next(new HttpError('Operation failed', 500));
 
     }
 
@@ -138,7 +142,7 @@ export const updatePlaceById = async (req: Request, res: Response, next: NextFun
 
 };
 // =================================================== delete by id ==============================
-export const deletePlaceById = async (req: Request, res: Response, next: NextFunction) => {
+export const deletePlaceById = async (req: Request | any, res: Response, next: NextFunction) => {
     const placeId = req.params.placeId as string;
 
     let place: iPlace | any;
@@ -148,6 +152,11 @@ export const deletePlaceById = async (req: Request, res: Response, next: NextFun
     catch (err) {
         next(new HttpError('Operation failed', 500));
     }
+
+    if(place.creator.id !== req.userData.userId){
+        return next(new HttpError('You are not allowed to delete this play', 401));
+    }
+    
 
     const ImagePath = place.image;
 

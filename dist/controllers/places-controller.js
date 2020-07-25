@@ -98,7 +98,7 @@ exports.updatePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     const errors = express_validator_1.validationResult(req);
     if (!errors.isEmpty()) {
         res.status(422);
-        next(new http_errors_1.default('invalid inputs passed', 422));
+        return next(new http_errors_1.default('invalid inputs passed', 422));
     }
     const placeId = req.params.placeId;
     const { title, description } = req.body;
@@ -107,7 +107,10 @@ exports.updatePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         updatedPlace = yield placeSchema_1.default.findById(placeId);
     }
     catch (err) {
-        next(new http_errors_1.default('cant find this place', 500));
+        return next(new http_errors_1.default('cant find this place', 500));
+    }
+    if (updatedPlace.creator.toString() !== req.userData.userId) {
+        return next(new http_errors_1.default('You are not allowed to edit this play', 401));
     }
     updatedPlace.title = title;
     updatedPlace.description = description;
@@ -115,7 +118,7 @@ exports.updatePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         yield updatedPlace.save();
     }
     catch (err) {
-        next(new http_errors_1.default('Operation failed', 500));
+        return next(new http_errors_1.default('Operation failed', 500));
     }
     res.status(201).json({ message: "place successfuly updated", place: updatedPlace.toObject() });
 });
@@ -128,6 +131,9 @@ exports.deletePlaceById = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
     catch (err) {
         next(new http_errors_1.default('Operation failed', 500));
+    }
+    if (place.creator.id !== req.userData.userId) {
+        return next(new http_errors_1.default('You are not allowed to delete this play', 401));
     }
     const ImagePath = place.image;
     try {

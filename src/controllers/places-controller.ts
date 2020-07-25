@@ -48,14 +48,14 @@ export const getPlacesByUserId = async (req: Request, res: Response, next: NextF
     res.json({ message: 'success', place: places.places.map((place: any) => place.toObject({ getters: true })) })
 };
 // ============================================== create PLACE ==========================================
-export const createPlace = async (req: Request, res: Response, next: NextFunction) => {
+export const createPlace = async (req: Request | any, res: Response, next: NextFunction) => {
     const errors: any = validationResult(req);
 
     if (!errors.isEmpty()) {
         return next(new HttpError('invalid inputs passed', 422));
     }
 
-    const { title, description, address, creator } = req.body;
+    const { title, description, address } = req.body;
     let coordinates;
     try {
         coordinates = await getCoord(address);
@@ -70,7 +70,7 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
         address,
         location: coordinates,
         image: req.file.path.replace("\\", "/"),
-        creator
+        creator: req.userData.userId
     })
 
 
@@ -78,7 +78,7 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
 
 
     try {
-        user = await User.findById(creator);
+        user = await User.findById(req.userData.userId);
     }
     catch (err) {
         return next(new HttpError('Operation failed', 500));

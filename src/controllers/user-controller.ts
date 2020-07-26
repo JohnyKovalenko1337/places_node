@@ -73,7 +73,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
                 userId: createUser.id,
                 email: createUser.email
             },
-            'secret_place',
+            process.env.JWT_KEY as string,
             { expiresIn: '1h' }
         );
     }
@@ -129,7 +129,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
                 userId: existingUser.id,
                 email: existingUser.email
             },
-            'secret_place',
+            process.env.JWT_KEY as string,
             { expiresIn: '1h' }
         );
     }

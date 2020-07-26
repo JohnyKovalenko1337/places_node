@@ -71,7 +71,7 @@ exports.signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         token = jsonwebtoken_1.default.sign({
             userId: createUser.id,
             email: createUser.email
-        }, 'secret_place', { expiresIn: '1h' });
+        }, process.env.JWT_KEY, { expiresIn: '1h' });
     }
     catch (err) {
         next(new http_errors_1.default('Something went wrong with token, we are so sorry', 500));
@@ -110,7 +110,7 @@ exports.login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         token = jsonwebtoken_1.default.sign({
             userId: existingUser.id,
             email: existingUser.email
-        }, 'secret_place', { expiresIn: '1h' });
+        }, process.env.JWT_KEY, { expiresIn: '1h' });
     }
     catch (err) {
         next(new http_errors_1.default('Something went wrong with token, we are so sorry', 500));

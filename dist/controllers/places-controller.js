@@ -53,7 +53,7 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     if (!errors.isEmpty()) {
         return next(new http_errors_1.default('invalid inputs passed', 422));
     }
-    const { title, description, address, creator } = req.body;
+    const { title, description, address } = req.body;
     let coordinates;
     try {
         coordinates = yield location_1.default(address);
@@ -67,11 +67,11 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         address,
         location: coordinates,
         image: req.file.path.replace("\\", "/"),
-        creator
+        creator: req.userData.userId
     });
     let user;
     try {
-        user = yield userSchema_1.default.findById(creator);
+        user = yield userSchema_1.default.findById(req.userData.userId);
     }
     catch (err) {
         return next(new http_errors_1.default('Operation failed', 500));

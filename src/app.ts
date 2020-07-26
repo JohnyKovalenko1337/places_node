@@ -10,6 +10,9 @@ import UserRouter from './routes/user-routes';
 
 const app = express();
 
+
+const MONGO_URL : string =`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@placedb.gjnu9.mongodb.net/${process.env.DB_NAME}`;
+
 app.use(bodyParser.json());
 
 
@@ -52,7 +55,7 @@ app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
         })
 })
 
-mongoose.connect('mongodb+srv://sadJo:qwerty123456@placedb.gjnu9.mongodb.net/places?retryWrites=true&w=majority',
+mongoose.connect(MONGO_URL,
     { useUnifiedTopology: true, useNewUrlParser: true })
     .then(() => {
         app.listen({ port: 8000 });

@@ -16,7 +16,7 @@ exports.auth = (req, res, next) => {
         if (!token) {
             return next(new http_errors_1.default('Authorization failed', 500));
         }
-        const decodedToken = jsonwebtoken_1.default.verify(token, 'secret_place');
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_KEY);
         req.userData = { userId: decodedToken.userId };
         next();
     }

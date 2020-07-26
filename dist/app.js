@@ -12,6 +12,7 @@ const http_errors_1 = __importDefault(require("./models/http-errors"));
 const places_routes_1 = __importDefault(require("./routes/places-routes"));
 const user_routes_1 = __importDefault(require("./routes/user-routes"));
 const app = express_1.default();
+const MONGO_URL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@placedb.gjnu9.mongodb.net/${process.env.DB_NAME}`;
 app.use(body_parser_1.default.json());
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,7 +41,7 @@ app.use((error, req, res, next) => {
         message: message,
     });
 });
-mongoose_1.default.connect('mongodb+srv://sadJo:qwerty123456@placedb.gjnu9.mongodb.net/places?retryWrites=true&w=majority', { useUnifiedTopology: true, useNewUrlParser: true })
+mongoose_1.default.connect(MONGO_URL, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(() => {
     app.listen({ port: 8000 });
 })

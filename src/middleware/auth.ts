@@ -13,7 +13,7 @@ export const auth = (req: Request | any, res: Response, next: NextFunction) => {
         if (!token) {
             return next(new HttpError('Authorization failed', 500))
         }
-        const decodedToken: any = jwt.verify(token, 'secret_place');
+        const decodedToken: any = jwt.verify(token, process.env.JWT_KEY as string);
         req.userData = { userId: decodedToken.userId };
         next();
     }

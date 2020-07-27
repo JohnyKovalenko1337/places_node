@@ -20,12 +20,14 @@
   },
   "homepage": "https://github.com/JohnyKovalenko1337/places_node#readme",
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/body-parser": "^1.19.0",
     "@types/express": "^4.17.7",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mongoose": "^5.7.32",
     "@types/multer": "^1.4.3",
+    "@types/multer-s3": "^2.7.7",
     "@types/node": "^14.0.23",
     "@types/uuid": "^8.0.0",
     "nodemon": "^2.0.4",
@@ -37,6 +39,7 @@
     "@types/axios": "^0.14.0",
     "@types/bcrypt": "^3.0.0",
     "@types/express-validator": "^3.0.0",
+    "aws-sdk": "^2.720.0",
     "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
     "bcryptjs": "^2.4.3",
@@ -46,6 +49,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.25",
     "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
+    "path": "^0.12.7",
+    "url": "^0.11.0",
     "uuid": "^8.2.0"
   }
 }

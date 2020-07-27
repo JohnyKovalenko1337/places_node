@@ -21,7 +21,7 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
     res.json({ message: 'success', users: users })
 };
 // ======================================= SIGNUP ==========================================
-export const signUp = async (req: Request, res: Response, next: NextFunction) => {
+export const signUp = async (req: Request | any, res: Response, next: NextFunction) => {
     const errors: any = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -29,7 +29,6 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     }
 
     const { name, email, password } = req.body;
-
 
     let existingUser: iUser | any;
 
@@ -54,7 +53,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     const createUser: iUser | any = new User({
         name,
         email,
-        image: req.file.path.replace("\\", "/"),
+        image: req.file.location,
         password: hashedPassword,
         places: []
     });

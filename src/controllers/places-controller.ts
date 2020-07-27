@@ -69,7 +69,7 @@ export const createPlace = async (req: Request | any, res: Response, next: NextF
         description,
         address,
         location: coordinates,
-        image: req.file.path.replace("\\", "/"),
+        image: req.file.location,
         creator: req.userData.userId
     })
 

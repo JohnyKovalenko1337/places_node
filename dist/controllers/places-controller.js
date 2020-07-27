@@ -66,7 +66,7 @@ exports.createPlace = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         description,
         address,
         location: coordinates,
-        image: req.file.path.replace("\\", "/"),
+        image: req.file.location,
         creator: req.userData.userId
     });
     let user;

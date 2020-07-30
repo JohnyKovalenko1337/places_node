@@ -4,7 +4,7 @@
 ## STACK: 
 ### TypeScript, Node.js, Express.js MongoDB, Mongoose, React.js
 ## Features: 
-### -Added GOGLE MAP API for show place on the map by address
+### -Added GOOGLE MAP API for show place on the map by address
 ### -Added AWS S3 for storring uploaded images
 ### -Authentication have been done with jwt token
 ## Images of the app:

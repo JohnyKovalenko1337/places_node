@@ -5,8 +5,8 @@ import aws from 'aws-sdk';
 import multerS3 from 'multer-s3';
 
 const s3: AWS.S3 = new aws.S3({
-    accessKeyId: 'AKIAZEV2VUWLW3BXFOU5',
-    secretAccessKey: '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',
+    accessKeyId: 'AKIxxxU5',
+    secretAccessKey: 'xxruORGw8TRpWmBsVU',
     
 });
 

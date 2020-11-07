@@ -9,8 +9,8 @@ const path_1 = __importDefault(require("path"));
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 const multer_s3_1 = __importDefault(require("multer-s3"));
 const s3 = new aws_sdk_1.default.S3({
-    accessKeyId: 'AKIAZEV2VUWLW3BXFOU5',
-    secretAccessKey: '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',
+    accessKeyId: 'AKxUx',
+    secretAccessKey: 'yxxxxx',
 });
 const Mime_Type_Map = {
     'image/png': 'png',
